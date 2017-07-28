@@ -1,6 +1,6 @@
 VERSION 5.00
 Begin VB.Form frmSearchResults 
-   BorderStyle     =   4  'Festes Werkzeugfenster
+   BorderStyle     =   4  'Fixed ToolWindow
    Caption         =   "Please choose a script locations"
    ClientHeight    =   3780
    ClientLeft      =   2760
@@ -12,6 +12,7 @@ Begin VB.Form frmSearchResults
    ScaleHeight     =   3780
    ScaleWidth      =   2985
    ShowInTaskbar   =   0   'False
+   StartUpPosition =   2  'CenterScreen
    Begin VB.CommandButton cmd_cancel 
       Cancel          =   -1  'True
       Caption         =   "Cancel"
@@ -45,6 +46,7 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
+'used in decompiler.FindLocation if more than one search location found...
 
 Option Explicit
 Public SelectedLocation&
@@ -83,7 +85,6 @@ End Sub
 
 
 Private Sub Form_QueryUnload(Cancel As Integer, UnloadMode As Integer)
-   FrmMain.WH_close
    If UnloadMode = 0 Then DoCancel
 End Sub
 
@@ -92,10 +93,6 @@ Private Sub List_Locations_DblClick()
    DoSelect
 End Sub
 
-Private Sub List_Locations_MouseUp(Button As Integer, Shift As Integer, X As Single, Y As Single)
-   FrmMain.WH_Open
-   FrmMain.WH_Goto HexToInt(List_Locations.Text)
-End Sub
 
 Public Sub DoSelect()
    SelectedLocation = List_Locations.ListIndex + 1

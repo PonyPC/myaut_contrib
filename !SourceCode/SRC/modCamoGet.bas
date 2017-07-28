@@ -60,7 +60,7 @@ End Function
 '      End If
 '
 '
-'      ArrayAdd Texts
+'      push Texts
 '
 '   Next
 '   szToUnicodeGREPHex = szToGREPHex(Texts)
@@ -78,7 +78,7 @@ Public Sub CamoGet()
    log_verbose "GetCamo's: LoadingFile: " & Frm_Options.Txt_GetCamoFileName
    
    Dim filedata As New StringReader
-   filedata = FileLoad(Frm_Options.Txt_GetCamoFileName)
+   filedata = fso.ReadFile(Frm_Options.Txt_GetCamoFileName)
     
     
    On Error Resume Next
@@ -498,15 +498,15 @@ Dim Pattern As New clsStrCat
       Log "Custom ReadFileHook with XORCryptkey found !!!"
       
     ' Xor & save as *.a3x
-      FileName.Ext = "a3x"
-      FileSave FileName.FileName, _
+      filename.ext = "a3x"
+      fso.writeFile filename.filename, _
          SimpleXor(filedata.Data, XORCryptkey)
-      Log "XOR'ed whole file and saved it to " & FileName.FileName
+      Log "XOR'ed whole file and saved it to " & filename.filename
       
-      MsgBox "Press Ok to reload " & FileName.NameWithExt & " now ! ", vbInformation, "Xor decrypt done. "
+      MsgBox "Press Ok to reload " & filename.NameWithExt & " now ! ", vbInformation, "Xor decrypt done. "
       
     ' Open File
-      FrmMain.Combo_Filename = FileName.FileName
+      FrmMain.txtFilePath = filename.filename
       
    End If
 

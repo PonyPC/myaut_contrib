@@ -93,34 +93,25 @@ Public Event OnInit(ProgramName$)
 Public Event OnOutput(TextLine$, ProgramName$)
 Public Event OnDone(ExitCode&)
 
-Public Function ShellExConsole(FileName$, Params$, Optional ByRef ExitCode&, Optional WinStyle As VbAppWinStyle = vbHide) As String
+Public Function ShellExConsole(filename$, Params$, Optional ByRef ExitCode&, Optional WinStyle As VbAppWinStyle = vbHide) As String
 On Error GoTo ShellExConsole_err
-  
-   
-   
-   Dim tmp As New ClsFilename
-   tmp = FileName
-   
+
    Dim ProgramName$
-   ProgramName = tmp.Name
+   ProgramName = fso.FileNameFromPath(filename)
   
    'GUI_SkipEnable
    RaiseEvent OnInit(ProgramName)
-   
-  
-  
+
   ' Create CommandLine
     Dim ShellCommand$
-    ShellCommand = Quote(FileName) & " " & Params
+    ShellCommand = Quote(filename) & " " & Params
     
   ' Open Pipe
     Dim sa As SECURITY_ATTRIBUTES
     sa.nLength = Len(sa)
     sa.bInheritHandle = 1&
     sa.lpSecurityDescriptor = 0&
-    
-    
-    
+
   ' Create hWritePipe for CreateProcess!STARTUPINFO
   ' -> creates a console we'll read the output from
     Dim retval As Long

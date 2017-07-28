@@ -14,10 +14,10 @@ Attribute VB_Exposed = False
 Attribute VB_Ext_KEY = "SavedWithClassBuilder6" ,"Yes"
 Attribute VB_Ext_KEY = "Top_Level" ,"Yes"
 Option Explicit
-'Private
+
 Public mvarFileName$
 
-
+'default method of class...
 Public Property Get FileName() As String
 Attribute FileName.VB_UserMemId = 0
    FileName = mvarFileName

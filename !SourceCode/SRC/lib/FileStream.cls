@@ -14,7 +14,13 @@ Attribute VB_Exposed = False
 Attribute VB_Ext_KEY = "SavedWithClassBuilder6" ,"Yes"
 Attribute VB_Ext_KEY = "Top_Level" ,"Yes"
 Option Explicit
-Public FileName As String
+
+'so we are being left with some file handles open at end of run..one on the sample file itself in particular
+Private Const DEBUG_FH As Boolean = True 'False
+
+
+Public filename As String
+Public id As String
 
 Public mvarhFile As Long
 Private mvarByteToBeRead As Long 'lokale Kopie
@@ -52,13 +58,13 @@ Private Declare Function ReadFileLong Lib "kernel32" Alias "ReadFile" (ByVal hFi
 Private Declare Function ReadFileDouble Lib "kernel32" Alias "ReadFile" (ByVal hFile As Long, ByRef lpBuffer As Double, ByVal nNumberOfBytesToRead As Integer, lpNumberOfBytesRead As Long, ByVal lpOverlapped As Long) As Long
 Private Declare Function ReadFileInt64 Lib "kernel32" Alias "ReadFile" (ByVal hFile As Long, ByRef lpBuffer As Currency, ByVal nNumberOfBytesToRead As Integer, lpNumberOfBytesRead As Long, ByVal lpOverlapped As Long) As Long
 
-Private Declare Function WriteFile Lib "kernel32" (ByVal hFile As Long, ByVal lpBuffer As String, ByVal nNumberOfBytesToRead As Long, lpNumberOfBytesRead As Long, ByVal lpOverlapped As Long) As Long
+Private Declare Function writeFile Lib "kernel32" Alias "WriteFile" (ByVal hFile As Long, ByVal lpBuffer As String, ByVal nNumberOfBytesToRead As Long, lpNumberOfBytesRead As Long, ByVal lpOverlapped As Long) As Long
 Private Declare Function CloseHandle Lib "kernel32" (ByVal hObject As Long) As Long
 
-Private Declare Sub MemCopy Lib "kernel32" Alias "RtlMoveMemory" (src As Any, src As Any, ByVal Length&)
-Private Declare Sub MemCopyStrToLng Lib "kernel32" Alias "RtlMoveMemory" (src As Long, ByVal src As String, ByVal Length&)
-Private Declare Sub MemCopyLngToStr Lib "kernel32" Alias "RtlMoveMemory" (ByVal src As String, src As Long, ByVal Length&)
-Private Declare Sub MemCopyLngToInt Lib "kernel32" Alias "RtlMoveMemory" (src As Long, ByVal src As Integer, ByVal Length&)
+Private Declare Sub MemCopy Lib "kernel32" Alias "RtlMoveMemory" (src As Any, src As Any, ByVal length&)
+Private Declare Sub MemCopyStrToLng Lib "kernel32" Alias "RtlMoveMemory" (src As Long, ByVal src As String, ByVal length&)
+Private Declare Sub MemCopyLngToStr Lib "kernel32" Alias "RtlMoveMemory" (ByVal src As String, src As Long, ByVal length&)
+Private Declare Sub MemCopyLngToInt Lib "kernel32" Alias "RtlMoveMemory" (src As Long, ByVal src As Integer, ByVal length&)
 'Private Declare Sub MemCopyStrToInt Lib "kernel32" Alias "RtlMoveMemory" (src As Any, Src As String, ByVal length&)
 'Private Declare Sub MemCopyStrToByte Lib "kernel32" Alias "RtlMoveMemory" (src As Any, Src As String, ByVal length&)
 
@@ -71,7 +77,7 @@ End Enum
 Private Declare Function SetFilePointer Lib "kernel32" (ByVal hFile As Long, ByVal lDistanceToMove As Long, lpDistanceToMoveHigh As Long, ByVal dwMoveMethod As Long) As Long
 Private Declare Function SetEndOfFile Lib "kernel32" (ByVal hFile As Long) As Long
 
-Private Retval As Long
+Private retval As Long
 Private bytesRead As Long
 Private Declare Function DeleteFile Lib "kernel32" Alias "DeleteFileA" (ByVal lpFileName As String) As Long
 Private Declare Function GetFileSize Lib "kernel32" (ByVal hFile As Long, lpFileSizeHigh As Long) As Long
@@ -116,7 +122,7 @@ End Function
 'End Property
 
 Public Property Get EOS() As Boolean
-    EOS = Me.Length = Me.Position
+    EOS = Me.length = Me.Position
 End Property
 
 '// Set the EOS at the current position (= .position)
@@ -130,17 +136,17 @@ End Sub
 '   If WriteFile(hFile, vData, Length, bytesRead, 0) <= 0 Then Err.Raise vbObjectError, , "Error in Property Let fixedString: Can't write data. Filestream::Readonly=" & Readonly
 'End Property
 
-Public Property Get FixedStringW(ByVal Length As Long) As String
-   If Length = -1 Then
-      Length = (Me.Length - Me.Position)
+Public Property Get FixedStringW(ByVal length As Long) As String
+   If length = -1 Then
+      length = (Me.length - Me.Position)
    End If
  
  ' create Buffer
-   FixedStringW = Space(Length)
+   FixedStringW = Space(length)
    
  ' Read Fixed String
-   Retval = ReadFilePtr(hFile, StrPtr(FixedStringW), Length * 2, bytesRead, 0)
-   If Retval < 0 Then Err.Raise vbObjectError, , "ReadFileString failed."
+   retval = ReadFilePtr(hFile, StrPtr(FixedStringW), length * 2, bytesRead, 0)
+   If retval < 0 Then Err.Raise vbObjectError, , "ReadFileString failed."
 End Property
 
 
@@ -148,12 +154,17 @@ End Property
 
 
 
-Public Property Let FixedString(ByVal Length As Long, ByRef vData As String)
-   If Length = -1 Then Length = Len(vData)
+Public Property Let FixedString(ByVal length As Long, ByRef vData As String)
+   If length = -1 Then length = Len(vData)
  ' deal with the case of negative FileOffsets
    If Me.Position < 0 Then
     ' shorten string
-    MsgBox "TODO: Handle write data at an negative fileoffset."
+    
+    If Not isAutomationRun Then
+        MsgBox "TODO: Handle write data at an negative fileoffset."
+    Else
+        Log "TODO: Handle write data at an negative fileoffset."
+    End If
     
 '      Length = Length + Position
       
@@ -171,36 +182,39 @@ Public Property Let FixedString(ByVal Length As Long, ByRef vData As String)
    End If
    
    
-   If WriteFile(hFile, vData, Length, bytesRead, 0) <= 0 Then Err.Raise vbObjectError, , "Error in Property Let fixedString: Can't write data. Filestream::Readonly=" & Readonly
+   If writeFile(hFile, vData, length, bytesRead, 0) <= 0 Then Err.Raise vbObjectError, , "Error in Property Let fixedString: Can't write data. Filestream::Readonly=" & Readonly
 End Property
 
-Public Property Get FixedString(ByVal Length As Long) As String
+
+'-1 means read whole file, unless file pointer is already in the
+'middle somewhere, then it reads to end from current position
+Public Property Get FixedString(ByVal length As Long) As String
    ' 'Length = -1' means read till end
-   If Length = -1 Then
+   If length = -1 Then
    ' deal with the case of negative FileOffsets
      If Me.Position < 0 Then
       ' seek to start
         Me.Position = 0
       ' 'select' whole file
-        Length = Me.Length
+        length = Me.length
       Else
       ' 'select' from current pos to end of file
-         Length = (Me.Length - Me.Position)
+         length = (Me.length - Me.Position)
       End If
    End If
  
  ' deal with the case of negative FileOffsets
    If Me.Position < 0 Then
     ' shorten length
-      Length = Length + Position
+      length = length + Position
       
-      If Length >= 0 Then
+      If length >= 0 Then
        ' set to beginning of file - so readfile has a chance to succeed
          Position = 0
       Else
        ' whoops after FileRead we'll still 'before the beginning'
        ' so just move 'virtually' forward and return an empty string
-         Position = -Length
+         Position = -length
          FixedString = ""
          Exit Property
          
@@ -209,11 +223,11 @@ Public Property Get FixedString(ByVal Length As Long) As String
    
    
  ' create Buffer
-   FixedString = Space(Length)
+   FixedString = Space(length)
    
  ' Read Fixed String
-   Retval = ReadFile(hFile, FixedString, Length, bytesRead, 0)
-   If Retval < 0 Then Err.Raise vbObjectError, , "ReadFileString failed."
+   retval = ReadFile(hFile, FixedString, length, bytesRead, 0)
+   If retval < 0 Then Err.Raise vbObjectError, , "ReadFileString failed."
    
  ' Limit buffer incase the file is smaller
    FixedString = Left(FixedString, bytesRead)
@@ -228,22 +242,27 @@ Public Property Get char() As String
    char = FixedString(1)
 End Property
 
-
-Public Sub FindBytes(ParamArray Bytes())
-   Dim i
-   i = LBound(Bytes)
-   
-   With Me
-      Do
-         If .int8 = Bytes(i) Then
-            If i >= UBound(Bytes) Then Exit Do
-            i = i + 1
-         Else
-            i = LBound(Bytes)
-         End If
-      Loop Until .EOS
-   End With
-End Sub
+'used in decompiler ReadPassword only..slow..
+'has been replaced with Decompiler.ScanForPassword (see standalone test project) 2mb file 19sec - .3 sec
+'Public Sub FindBytes(ParamArray Bytes())
+'   Dim i
+'   Dim j As Long
+'
+'   i = LBound(Bytes)
+'
+'   With Me
+'      Do
+'         If .int8 = Bytes(i) Then
+'            If i >= UBound(Bytes) Then Exit Do
+'            i = i + 1
+'         Else
+'            i = LBound(Bytes)
+'         End If
+'         If .Position Mod 100 = 0 Then DoEvents
+'      Loop Until .EOS
+'   End With
+'
+'End Sub
 
 Public Function FindString&(StringToFind$, Optional SearchBackwards As Boolean = False, Optional VbCompareMethod As VbCompareMethod = vbBinaryCompare)
    Dim tmp$, oldPos&
@@ -287,14 +306,14 @@ Public Function FindStrings(StringToFind$, Optional StopIfMoreThan& = &H7FFFFFFF
    Position = 0
    tmp = FixedString(-1)
    
-   Dim Offset&, item
-   Offset = 0
+   Dim offset&, item
+   offset = 0
    For Each item In Split(tmp, StringToFind, StopIfMoreThan)
       
-      Inc Offset, Len(item)
-      FindStrings.Add Offset
+      Inc offset, Len(item)
+      FindStrings.Add offset
       
-      Inc Offset, Len(StringToFind)
+      Inc offset, Len(StringToFind)
    Next
    FindStrings.Remove FindStrings.Count
    
@@ -447,11 +466,11 @@ End Property
 
 
 Public Property Let int32(ByRef vData As Long)
-    Dim Retval&
+    Dim retval&
     Dim bytesWritten&
     Dim tmp$
     tmp = LngtoStr(vData)
-    Retval = WriteFile(hFile, tmp, 4, bytesWritten, 0)
+    retval = writeFile(hFile, tmp, 4, bytesWritten, 0)
     If bytesWritten <> 4 Then
       Err.Raise vbObjectError, "", "Let_int32: WriteFile failed! Readonly=" & CBool(vbReadOnly)
     End If
@@ -466,9 +485,16 @@ Public Property Get int32() As Long
 '    bytesRead = ReadFileLong(hFile, value, 4, bytesRead, 0)
 '    int32 = value
 
-  Dim Retval&, bytesRead&
-  Retval = ReadFileLong(hFile, int32, 4, bytesRead, 0)
-  If bytesRead <> 4 Then MsgBox "[File::int32] Only '" & bytesRead & "' bytes read instead of 4! RetVal: " & Retval, vbCritical
+  Dim retval&, bytesRead&
+  retval = ReadFileLong(hFile, int32, 4, bytesRead, 0)
+  If bytesRead <> 4 Then
+        If Not isAutomationRun Then
+            MsgBox "[File::int32] Only '" & bytesRead & "' bytes read instead of 4! RetVal: " & retval, vbCritical
+        Else
+            Log "[File::int32] Only '" & bytesRead & "' bytes read instead of 4! RetVal: " & retval
+        End If
+  End If
+    
 End Property
 
 
@@ -557,15 +583,15 @@ Public Property Let PositionEOFRelated(ByVal vData As Long)
 End Property
 
 
-Private Sub SeekToPosition(Offset&, SeekType As SeekType)
+Private Sub SeekToPosition(offset&, SeekType As SeekType)
    
-   Dim Retval&
-   Retval = SetFilePointer(hFile, Offset, 0, SeekType)
-   If Retval < 0 Then
+   Dim retval&
+   retval = SetFilePointer(hFile, offset, 0, SeekType)
+   If retval < 0 Then
 '      MsgBox "Error on SetFilePointer, FilePointer is before beginning: " & Offset, vbCritical
 '      Me.Position = 0
    Else
-      mvarMaxPosition = Max(mvarMaxPosition, Retval)
+      mvarMaxPosition = Max(mvarMaxPosition, retval)
    End If
 End Sub
 
@@ -583,18 +609,20 @@ End Sub
 
 
 
-'////////////////////////////////////////
-'//  Set File Handle Property
+'this is how he choose to manually close open handles..except looks like forgot sometimes..
 Private Property Let hFile(ByVal vData As Long)
    
   'If invalid file handle is to be set...
    If vData = -1 Then
      'Close File
-      CloseHandle mvarhFile
+      If mvarhFile <> -1 Then
+            CloseHandle mvarhFile
+            If DEBUG_FH Then fHandleDebugLog pad("Id: " & id, 28) & pad(" Close: " & Hex(mvarhFile), 20) & pad(" Obj:" & Hex(ObjPtr(Me)), 20) & " file:" & filename
+      End If
       
     ' DeleteFile if it is opened as Temporary
       If bIsTemporaryFile Then
-         DeleteFile FileName
+         DeleteFile filename
       End If
       
    End If
@@ -605,12 +633,13 @@ Private Property Let hFile(ByVal vData As Long)
 End Property
 '//  Get File Handle Property
 
+'open the file handle on demand if its not already open..
 Public Property Get hFile() As Long
    
  ' If no file handle(mvarhFile = 0) get one.
    If mvarhFile = -1 Then
      'Open file as with new file handle
-      mvarhFile = CreateFile(FileName, _
+      mvarhFile = CreateFile(filename, _
                               GENERIC_READ Or (GENERIC_WRITE And Not (Readonly)), _
                               FILE_SHARE_READ Or FILE_SHARE_WRITE Or FILE_SHARE_DELETE, _
                               0, CreationDisposition, _
@@ -618,27 +647,33 @@ Public Property Get hFile() As Long
       If mvarhFile = -1 Then
          On Error Resume Next
          Dim tmptxt$
-         tmptxt = IIf(GetAttr(FileName) And vbReadOnly, "File is write protected.", "File is in use.")
+         tmptxt = IIf(GetAttr(filename) And vbReadOnly, "File is write protected.", "File is in use.")
          If Err Then tmptxt = Err.Description
          On Error GoTo 0
-         Err.Raise ERR_OPENFILE, , "Can't open " & FileName & " for read" & IIf(Readonly, "", "/write") & " access. " & tmptxt
+         Err.Raise ERR_OPENFILE, , "Can't open " & filename & " for read" & IIf(Readonly, "", "/write") & " access. " & tmptxt
+      Else
+         If DEBUG_FH Then fHandleDebugLog pad("Id: " & id, 28) & pad("  Open: " & Hex(mvarhFile), 20) & pad(" Obj:" & Hex(ObjPtr(Me)), 20) & " file:" & filename
       End If
+      
    End If
 
  ' return Filehandle
    hFile = mvarhFile
-  
  ' Set FileSize
    mvarMaxPosition = GetFileSize(mvarhFile, 0)
    
 End Property
 
+Public Sub CloseFile()
+   hFile = -1
+End Sub
+
 '////////////////////////////////////////
 '//  Get Length Property
-Public Property Get Length() As Long
+Public Property Get length() As Long
 '->TODO: Cache lenght of file in a variable)
     mvarMaxPosition = GetFileSize(hFile, 0)
-    Length = mvarMaxPosition
+    length = mvarMaxPosition
 '    Length = Max(mvarMaxPosition, GetFileSize(mvarhFile, 0), Me.Position)
 '    Length = Max(mvarMaxPosition, FileLen(FileName), Me.Position)
 End Property
@@ -654,14 +689,14 @@ Public Property Let int8(vData As Long) 'Offset&, lenght&, ByRef vData As String
     Dim tmp$
     tmp = LngtoStr(vData)
 
-    WriteFile hFile, tmp, 1, bytesWritten, 0
+    writeFile hFile, tmp, 1, bytesWritten, 0
 End Property
 '//  Get Data Property
 Public Property Get int8() As Long '(Offset&, lenght&)
     Dim bytesRead&
     Dim tmp$
     tmp = " "
-    Retval = ReadFile(hFile, tmp, 1, bytesRead, 0)
+    retval = ReadFile(hFile, tmp, 1, bytesRead, 0)
     int8 = Asc(tmp)
 End Property
 
@@ -669,9 +704,10 @@ End Property
 
 '////////////////////////////////////////
 '//  Create
-Public Sub Create(FileName As String, Optional bDeleteExistingFile As Boolean, Optional bTemporaryFile As Boolean, Optional Readonly As Boolean)
+Public Sub Create(filename As String, Optional bDeleteExistingFile As Boolean, Optional bTemporaryFile As Boolean, Optional Readonly As Boolean)
+   
    CloseFile
-   Me.FileName = FileName
+   Me.filename = filename
    Me.Readonly = Readonly
    If bDeleteExistingFile Then
       CreationDisposition = CREATE_ALWAYS
@@ -686,11 +722,7 @@ Public Sub Create(FileName As String, Optional bDeleteExistingFile As Boolean, O
    
 End Sub
 
-'////////////////////////////////////////
-'//  CloseFile
-Public Sub CloseFile()
-   hFile = -1
-End Sub
+
 
 Private Sub Class_Initialize()
  ' Defaults
@@ -698,6 +730,7 @@ Private Sub Class_Initialize()
 End Sub
 
 Private Sub Class_Terminate()
+   id = id & "_t"
    CloseFile
 End Sub
 
@@ -833,14 +866,14 @@ Public Sub Move(BytesToMoveFromCurPos&)
 End Sub
 
 
-Public Property Let Data(ByRef vData As String)
+Public Property Let data(ByRef vData As String)
    FixedString(-1) = vData
    Position = 0
 End Property
 
-Public Property Get Data() As String
-   Data = FixedString(-1)
+Public Property Get data() As String
+   data = FixedString(-1)
    Position = 0
 End Property
 
-
+ 

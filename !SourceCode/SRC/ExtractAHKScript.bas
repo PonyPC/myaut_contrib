@@ -73,7 +73,7 @@ Function SaveAHK11_Script(ExeFilename As ClsFilename) As Boolean
    Dim hModule&
 
    hModule = LoadLibraryEx( _
-      ExeFilename.FileName, 0, _
+      ExeFilename.filename, 0, _
       LOAD_LIBRARY_AS_DATAFILE)
       
    If hModule = 0 Then _
@@ -100,10 +100,10 @@ Function SaveAHK11_Script(ExeFilename As ClsFilename) As Boolean
 '      Dim FileName_AHKScript As New ClsFilename
 '      FileName_AHKScript = ExeFilename
          
-      ExeFilename.Ext = "ahk"
+      ExeFilename.ext = "ahk"
          
-      FileSave _
-         ExeFilename.FileName, _
+      fso.writeFile _
+         ExeFilename.filename, _
          AHK_Script
    End If
    
@@ -147,18 +147,23 @@ Public Function LoadRes(hModule&, hResInfo) As String
     LoadRes = AHKScript
     
     If (LoadRes Like "; <COMPILER*") = False Then
-      MsgBox _
-         "This AHK_L exe seems to be packed." & vbCrLf & _
-         "Try to manually unpack/dump this and then try again." & _
-          vbCrLf & _
-          vbCrLf & _
-         "Dumping the file with 'Process Hacker' is done by selecting the running" & vbCrLf & _
-         "file Properties/Memory. Select all Image(Commit) pages " & vbCrLf & _
-         "( normally that is at 0x400000) right click on them and select 'Save' " & vbCrLf & _
-         "to dump the uncompressed data to disk.", _
-         vbExclamation, _
-         "Whoops if ya ask me, that extracted script looks like garbage."
-
+    
+        Dim msg As String
+        msg = "This AHK_L exe seems to be packed." & vbCrLf & _
+               "Try to manually unpack/dump this and then try again." & _
+                vbCrLf & _
+                vbCrLf & _
+               "Dumping the file with 'Process Hacker' is done by selecting the running" & vbCrLf & _
+               "file Properties/Memory. Select all Image(Commit) pages " & vbCrLf & _
+               "( normally that is at 0x400000) right click on them and select 'Save' " & vbCrLf & _
+               "to dump the uncompressed data to disk." & vbCrLf & _
+               "Whoops if ya ask me, that extracted script looks like garbage."
+               
+        If Not isAutomationRun Then
+            MsgBox msg, vbExclamation
+        Else
+            Log msg
+        End If
 
     End If
     

@@ -1,6 +1,6 @@
 VERSION 5.00
 Begin VB.Form Frm_SrcEdit 
-   BorderStyle     =   5  'Änderbares Werkzeugfenster
+   BorderStyle     =   5  'Sizable ToolWindow
    Caption         =   "Token Viewer"
    ClientHeight    =   4935
    ClientLeft      =   60
@@ -12,6 +12,7 @@ Begin VB.Form Frm_SrcEdit
    ScaleHeight     =   4935
    ScaleWidth      =   8145
    ShowInTaskbar   =   0   'False
+   StartUpPosition =   2  'CenterScreen
    Begin VB.HScrollBar HScroll 
       Height          =   255
       Left            =   0
@@ -28,7 +29,7 @@ Begin VB.Form Frm_SrcEdit
    End
    Begin VB.Frame Fr_Text 
       BackColor       =   &H80000009&
-      BorderStyle     =   0  'Kein
+      BorderStyle     =   0  'None
       Caption         =   "Frame1"
       Height          =   2835
       Left            =   0
@@ -36,7 +37,7 @@ Begin VB.Form Frm_SrcEdit
       Top             =   0
       Width           =   5775
       Begin VB.Label Lbl_item 
-         Appearance      =   0  '2D
+         Appearance      =   0  'Flat
          AutoSize        =   -1  'True
          BackColor       =   &H80000005&
          BackStyle       =   0  'Transparent
@@ -67,6 +68,7 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
 Option Explicit
+'used in detokenizer.bas detokenize if verbose set
 
 Dim Txt_LastItem As Label
 Dim Txt_ItemCount&

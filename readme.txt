@@ -1,3 +1,33 @@
+
+
+This build of myAut2Exe has been modified from the original.
+It is based off of v2.12 
+
+This build has a couple new features such as the ability to
+automate (brute force) the selection of decompilation options.
+
+This feature in turn allowed us to add the capability to bulk
+process samples in a directory scan mode to really test the tools
+capabilities. 
+
+In the course of testing several bottle necks were also identified and
+processing speed has been increased.
+
+The current version of the original authors tool is now at 2.15 and 
+has added support for some more opcode handlers and bug fixes. 
+These have not been merged with this branch.
+
+This code has already been released back to the original author 
+for hopeful inclusion in his main distribution.
+
+This work is now being archived here.
+
+authors homepage: 
+  http://files.planet-dl.org/Cw2k/MyAutToExe/index.html
+
+
+
+
 myAut2Exe - The Open Source AutoIT Script Decompiler 2.12
 =========================================================
 

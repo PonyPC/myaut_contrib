@@ -4,7 +4,6 @@ Option Compare Text
 
 Dim myRegExp As New RegExp
 
-Public Const ERR_CANCEL_ALL& = vbObjectError Or &H1000
 
 Public Const ERR_SKIP& = vbObjectError Or &H2000
 
@@ -41,17 +40,17 @@ Public Const ERR_FILESTREAM = &H1000000
 Public Const ERR_OPENFILE = vbObjectError Or ERR_FILESTREAM + 1
 Private i, j As Integer
 
-Declare Sub MemCopyStrToLng Lib "kernel32" Alias "RtlMoveMemory" (src As Long, ByVal src As String, ByVal Length&)
-Declare Sub MemCopyLngToStr Lib "kernel32" Alias "RtlMoveMemory" (ByVal src As String, src As Long, ByVal Length&)
-Declare Sub MemCopyLngToInt Lib "kernel32" Alias "RtlMoveMemory" (src As Long, ByVal src As Integer, ByVal Length&)
+Declare Sub MemCopyStrToLng Lib "kernel32" Alias "RtlMoveMemory" (src As Long, ByVal src As String, ByVal length&)
+Declare Sub MemCopyLngToStr Lib "kernel32" Alias "RtlMoveMemory" (ByVal src As String, src As Long, ByVal length&)
+Declare Sub MemCopyLngToInt Lib "kernel32" Alias "RtlMoveMemory" (src As Long, ByVal src As Integer, ByVal length&)
 
 
 'Public Declare Sub MemCopyAnyToAny Lib "kernel32" Alias "RtlMoveMemory" (ByVal Dest As Any, src As Any, ByVal Length&)
-Public Declare Sub MemCopy Lib "kernel32" Alias "RtlMoveMemory" (ByVal Dest As String, ByVal src As Any, ByVal Length&)
+Public Declare Sub MemCopy Lib "kernel32" Alias "RtlMoveMemory" (ByVal dest As String, ByVal src As Any, ByVal length&)
 Public Declare Sub MemCopyX Lib "kernel32" Alias "RtlMoveMemory" _
 () '(Dest As Any, ByVal src As Long, ByVal Length&)
 '
-Public Declare Sub MemCopyAnyToStr Lib "kernel32" Alias "RtlMoveMemory" (Dest As Any, src As Any, ByVal Length&)
+Public Declare Sub MemCopyAnyToStr Lib "kernel32" Alias "RtlMoveMemory" (dest As Any, src As Any, ByVal length&)
 'Public Declare Sub MemCopyLngToStr Lib "kernel32" Alias "RtlMoveMemory" (ByVal Dest As String, src As Long, ByVal Length&)
 '
 'Public Declare Sub MemCopyStrToLng Lib "kernel32" Alias "RtlMoveMemory" (Dest As Long, ByVal src As String, ByVal Length&)
@@ -213,7 +212,6 @@ Public Function ValuesToHexString$(Data As StringReader, Optional seperator = " 
   
 End Function
 
-
 Function Max(ParamArray values())
    Dim item
    For Each item In values
@@ -246,11 +244,11 @@ Function isEven(Number As Long) As Boolean
    isEven = ((Number And 1) = 0)
 End Function
 
-Function RangeCheck(ByVal value&, Max&, Optional Min& = 0, Optional ErrText, Optional ErrSource$) As Boolean
+Function RangeCheck(ByVal value&, Max&, Optional Min& = 0, Optional errText, Optional ErrSource$) As Boolean
    RangeCheck = (Min <= value) And (value <= Max)
-   If (RangeCheck = False) And (IsMissing(ErrText) = False) Then _
+   If (RangeCheck = False) And (IsMissing(errText) = False) Then _
        Err.Raise vbObjectError, ErrSource, _
-           ErrText & " Value must between '" & Min & "'  and '" & Max & "' !"
+           errText & " Value must between '" & Min & "'  and '" & Max & "' !"
 End Function
 
 Public Function H8(ByVal value As Long)
@@ -313,6 +311,7 @@ Public Function qw()
       DoEvents
    Loop While Cancel = True
 End Function
+
 Public Function szNullCut$(zeroString$)
    Dim nullCharPos&
    nullCharPos = InStr(1, zeroString, Chr(0))
@@ -430,14 +429,14 @@ Function strCrop$(Text$, LeftString$, RightString$, Optional errorvalue = "", Op
 
 End Function
 
-Function MidMbcs(ByVal str As String, Start, Length)
-    MidMbcs = StrConv(MidB$(StrConv(str, vbFromUnicode), Start, Length), vbUnicode)
+Function MidMbcs(ByVal str As String, Start, length)
+    MidMbcs = StrConv(MidB$(StrConv(str, vbFromUnicode), Start, length), vbUnicode)
 End Function
 
 
-Function strCutOut$(str$, pos&, Length&, Optional TextToInsert = "")
-   strCutOut = Mid(str, pos, Length)
-   str$ = Mid(str, 1, pos - 1) & TextToInsert & Mid(str, pos + Length)
+Function strCutOut$(str$, pos&, length&, Optional TextToInsert = "")
+   strCutOut = Mid(str, pos, length)
+   str$ = Mid(str, 1, pos - 1) & TextToInsert & Mid(str, pos + length)
 End Function
 
 
@@ -467,11 +466,22 @@ Public Function BenchEnd()
 End Function
 
 
-Public Function FileExists(FileName) As Boolean
-   On Error GoTo FileExists_err
-   FileExists = FileLen(FileName)
+'Public Function FileExists(filename) As Boolean
+'   On Error GoTo FileExists_err
+'   FileExists = FileLen(filename)
+'
+'FileExists_err:
+'End Function
 
-FileExists_err:
+Function FileExists(ByVal path As String) As Boolean
+  On Error GoTo hell
+    
+  If Len(path) = 0 Then Exit Function
+  If Right(path, 1) = "\" Then Exit Function
+  If Dir(path, vbHidden Or vbNormal Or vbReadOnly Or vbSystem) <> "" Then FileExists = True
+  
+  Exit Function
+hell: FileExists = False
 End Function
 
 Public Function Quote(ByRef Text) As String
@@ -598,128 +608,92 @@ Public Function IsAlreadyInCollection(CollectionToTest As Collection, Key$) As B
 
 End Function
 
-'Public Sub ArrayEnsureBounds(Arr)
-'
-''   Dim tmp_ptr&
-''   MemCopy tmp_ptr, VarPtr(Arr) + 8, 4 ' resolve Variant
-''   MemCopy tmp_ptr, tmp_ptr, 4               ' get arraypointer
-''
-''   Dim bIsNullArray As Boolean
-''   bIsNullArray = (tmp_ptr = 0)
-'' On Error Resume Next
-'
-'   Dim bIsNullArray As Boolean
-'   bIsNullArray = (Not Not Arr) = 0 'use vbBug to get pointer to Arr
-'
-''   Rnd 1 ' catch Expression too complex error that is cause by the bug
-''On Error GoTo 0
-'
-''   Exit Function
-'
-'   If bIsNullArray Then
-'
-'   ElseIf (UBound(Arr) - LBound(Arr)) < 0 Then
-'   Else
-'      Exit Function
-'   End If
-'
-'   ReDim Arr(0)
-'   ArrayEnsureBounds = True
-'   Exit Function
-
-Public Sub ArrayEnsureBounds(Arr)
-
-On Error GoTo Array_err
-  ' IsArray(Arr)=False        ->  13 - Type Mismatch
-  ' [Arr has no Elements]     ->  9 - Subscript out of range
-  ' ZombieArray[arr=Array()]  -> GoTo Array_new
-   If UBound(Arr) - LBound(Arr) < 0 Then GoTo Array_new
-Exit Sub
-Array_err:
-Select Case Err
-    Case 9, 13
-Array_new:
-      ArrayDelete Arr
-
-'   Case Else
-'      Err.Raise Err.Number, "", "Error in ArrayEnsureBounds: " & Err.Description
-
-End Select
-
-End Sub
-
-
-
-Public Sub ArrayAdd(Arr, Optional Element = "")
-   ArrayEnsureBounds Arr
-   ReDim Preserve Arr(LBound(Arr) To UBound(Arr) + 1)
-   Arr(UBound(Arr)) = Element
-
-End Sub
-
-
-'Public Sub ArrayAdd(Arr As Variant, Optional element = "")
-'' Is that already a Array?
-'   If IsArray(Arr) Then
-'      ReDim Preserve Arr(LBound(Arr) To UBound(Arr) + 1)
-'
-' ' VarType(Arr) = vbVariant must be
-'   Else 'If VarType(Arr) = vbVariant Then
-'      ReDim Arr(0)
-'   End If
-'
-'   Arr(UBound(Arr)) = element
-'
-'End Sub
-
-Public Sub ArrayRemoveLast(Arr)
-   ReDim Preserve Arr(LBound(Arr) To UBound(Arr) - 1)
-End Sub
+Function AryIsEmpty(ary) As Boolean
+  On Error GoTo oops
+  Dim i As Long
+    i = UBound(ary)  '<- throws error if not initalized
+    AryIsEmpty = False
+  Exit Function
+oops: AryIsEmpty = True
+End Function
 
 Public Sub ArrayDelete(Arr)
    ReDim Arr(0)
-   'Arr = Array()
-   'Set Arr = Nothing
 End Sub
-
 
 Public Function ArrayGetLast(Arr)
-ArrayEnsureBounds Arr
-   ArrayGetLast = Arr(UBound(Arr))
+    If AryIsEmpty(Arr) Then Exit Function
+    ArrayGetLast = Arr(UBound(Arr))
 End Function
+
 Public Sub ArraySetLast(Arr, Element)
-ArrayEnsureBounds Arr
-    Arr(UBound(Arr)) = Element
+    If AryIsEmpty(Arr) Then
+        push Arr, Element
+    Else
+        Arr(UBound(Arr)) = Element
+    End If
 End Sub
+
 Public Sub ArrayAppendLast(Arr(), Element)
-ArrayEnsureBounds Arr
-    Arr(UBound(Arr)) = Arr(UBound(Arr)) & Element
+    If AryIsEmpty(Arr) Then
+        push Arr, Element
+    Else
+        Arr(UBound(Arr)) = Arr(UBound(Arr)) & Element
+    End If
 End Sub
 
+'Public Function ArrayGetFirst(Arr)
+'ArrayEnsureBounds Arr
+'   ArrayGetFirst = Arr(LBound(Arr))
+'End Function
 
-Public Function ArrayGetFirst(Arr)
-ArrayEnsureBounds Arr
-   ArrayGetFirst = Arr(LBound(Arr))
-End Function
-Public Sub ArraySetFirst(Arr, Element)
-ArrayEnsureBounds Arr
-    Arr(LBound(Arr)) = Element
-End Sub
-Public Sub ArrayAppendFirst(Arr, Element)
-ArrayEnsureBounds Arr
-    Arr(LBound(Arr)) = Arr(LBound(Arr)) & Element
-End Sub
+'Public Sub ArraySetFirst(Arr, Element)
+'ArrayEnsureBounds Arr
+'    Arr(LBound(Arr)) = Element
+'End Sub
 
+'Public Sub ArrayAppendFirst(Arr, Element)
+'ArrayEnsureBounds Arr
+'    Arr(LBound(Arr)) = Arr(LBound(Arr)) & Element
+'End Sub
+
+'Public Sub ArrAdd(Arr, Optional Element = "")
+'   ArrayEnsureBounds Arr
+'   ReDim Preserve Arr(LBound(Arr) To UBound(Arr) + 1)
+'   Arr(UBound(Arr)) = Element
+'End Sub
+
+'Public Sub ArrayRemoveLast(Arr)
+'   ReDim Preserve Arr(LBound(Arr) To UBound(Arr) - 1)
+'End Sub
+
+'Public Sub ArrayEnsureBounds(Arr)
+'
+'On Error GoTo Array_err
+'  ' IsArray(Arr)=False        ->  13 - Type Mismatch
+'  ' [Arr has no Elements]     ->  9 - Subscript out of range
+'  ' ZombieArray[arr=Array()]  -> GoTo Array_new
+'   If UBound(Arr) - LBound(Arr) < 0 Then GoTo Array_new
+'Exit Sub
+'Array_err:
+'Select Case Err
+'    Case 9, 13
+'Array_new:
+'      ArrayDelete Arr
+'
+''   Case Else
+''      Err.Raise Err.Number, "", "Error in ArrayEnsureBounds: " & Err.Description
+'
+'End Select
+'
+'End Sub
 
 
 
 Function DelayedReturn(Now As Boolean) As Boolean
    Static LastState As Boolean
-   
    DelayedReturn = LastState
-   
    LastState = Now
-   
 End Function
 
 
@@ -775,7 +749,6 @@ End Function
 
 Public Sub myDoEvents()
    DoEvents
-   
    Skip_Test
    CancelAll_Test
    APP_REQUEST_UNLOAD_Test
@@ -783,59 +756,23 @@ End Sub
 
 Public Sub Skip_Test()
    If Skip = True Then
-      
       Skip = False
       Err.Raise ERR_SKIP, , "User pressed the skip key."
-      
    End If
-  
 End Sub
-
 
 Public Sub CancelAll_Test()
    If CancelAll = True Then
-      
       CancelAll = False
       Err.Raise ERR_CANCEL_ALL, , "User pressed the cancel key."
-      
    End If
-  
 End Sub
 
 Public Sub APP_REQUEST_UNLOAD_Test()
    If APP_REQUEST_UNLOAD = True Then
-      
       Err.Raise ERR_CANCEL_ALL, , "Application shutdown."
-      
    End If
-  
 End Sub
-
-
-
-Public Function FileLoad$(FileName$)
-   Dim File As New FileStream
-   With File
-      .Create FileName, False, False, True
-      FileLoad = .FixedString(-1)
-      .CloseFile
-   End With
-End Function
-
-Public Sub FileSave(FileName$, Data$)
-   On Error GoTo err_FileSave
-   Dim File As New FileStream
-   With File
-      .Create FileName, True, False, False
-      .FixedString(-1) = Data
-      .CloseFile
-   End With
-
-Exit Sub
-err_FileSave:
-   Log "ERROR during FileSave: " & Err.Description
-End Sub
-
 
 Public Function FormatSize$(ByVal SizeValue&)
    On Error GoTo FormatSize_err
@@ -896,7 +833,7 @@ Sub FormSettings_Load(Form As Form, Optional ExcludedNames$)
       If IsExcludedName(controlItem.Name) = False Then
          Select Case TypeName(controlItem)
          Case "TextBox"
-   '         If (controlItem Is Combo_Filename) = False Then
+   '         If (controlItem Is txtFilePath) = False Then
                TextBox_Load Form.Name, controlItem
    '         End If
    

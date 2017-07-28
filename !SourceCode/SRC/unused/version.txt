@@ -1,0 +1,47 @@
+Private Sub mi_GetAutoItVersion_Click()
+
+'3.1.1 ( 7th Apr   , 2005) (Release)
+'...
+'
+'3.2.0 (12th August, 2006) (Release)
+' Added: /AutoIt3ExecuteScript command line option.
+
+   
+   On Error GoTo ERR_mi_GetAutoItVersion_Click
+ 
+ ' Minimize during execution
+   Dim WindowState_old
+   WindowState_old = WindowState
+   WindowState = vbMinimized
+      
+ ' Log & execute
+   Dim ShellCommandParams$
+   ShellCommandParams = " /AutoIt3ExecuteLine ""Exit(999+MsgBox(0x40,'AutoIt version of ' & @ScriptName & ' is', @AutoItVersion,10))"""
+   
+   Log "GetAutoItVersion executes: " & Quote(Combo_Filename) & " " & ShellCommandParams
+   Dim ShellExitCode&
+   ShellExitCode = ShellEx(Combo_Filename, ShellCommandParams, vbNormalFocus)
+   
+   If ShellExitCode = 1000 Then
+      Log "Execution finished; ExitCode: " & ShellExitCode
+      openURL "http://www.autoitscript.com/autoit3/files/archive/autoit"
+   Else
+      Log "Execution failed; ExitCode: " & ShellExitCode
+   End If
+'                   ' Run "LZSS.exe -d *.debug *.au3" to extract the script (...and wait for its execution to finish)
+'                     Dim LZSS_Output$, ExitCode&
+'                     LZSS_Output = Console.ShellExConsole( _
+'                              App.Path & "\" & "data\LZSS.exe", _
+'                              "-d " & Quote(.FileName) & " " & Quote(OutFileName.FileName), _
+'                              ExitCode)
+'
+'                     If ExitCode <> 0 Then Log LZSS_Output, "LZSS_Output: "
+   
+   
+   
+ ' Restore
+   WindowState = WindowState_old
+Exit Sub
+ERR_mi_GetAutoItVersion_Click:
+   Log "ERROR " & Err.Description
+End Sub

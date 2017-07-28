@@ -1,29 +1,5 @@
 Attribute VB_Name = "Pe_info_bas"
-'Public Declare Function LoadLibraryEx Lib "kernel32.dll" Alias "LoadLibraryExA" (ByVal lpLibFileName As String, ByVal hFile As Long, ByVal dwFlags As Long) As Long
-'Public Const LOAD_LIBRARY_AS_DATAFILE As Long = &H2
-'Public Const RT_GROUP_ICON As Long = (RT_ICON + DIFFERENCE)
-'Public Const RT_ICON As Long = 3&
-'Public Declare Function FindResource Lib "kernel32.dll" Alias "FindResourceA" (ByVal hInstance As Long, ByVal lpName As String, ByVal lpType As String) As Long
-'Public Declare Function LoadResource Lib "kernel32.dll" (ByVal hInstance As Long, ByVal hResInfo As Long) As Long
-'Public Declare Function LockResource Lib "kernel32.dll" (ByVal hResData As Long) As Long
-'Public Declare Function FreeLibrary Lib "kernel32.dll" (ByVal hLibModule As Long) As Long
-'
-
-
-
-Public Declare Function ShellExecute Lib "shell32.dll" Alias "ShellExecuteA" (ByVal hwnd As Long, ByVal lpOperation As String, ByVal lpFile As String, ByVal lpParameters As String, ByVal lpDirectory As String, ByVal nShowCmd As Long) As Long
-Public Type JOBOBJECT_BASIC_LIMIT_INFORMATION
-  PerProcessUserTimeLimit As Long
-  PerJobUserTimeLimit As Long
-  LimitFlags As Long
-  MinimumWorkingSetSize As Long
-  MaximumWorkingSetSize As Long
-  ActiveProcessLimit As Long
-  Affinity As Long
-  PriorityClass As Long
-  SchedulingClass As Long
-End Type
-
+Public Declare Function ShellExecute Lib "shell32.dll" Alias "ShellExecuteA" (ByVal hWnd As Long, ByVal lpOperation As String, ByVal lpFile As String, ByVal lpParameters As String, ByVal lpDirectory As String, ByVal nShowCmd As Long) As Long
 
 Public Type Section
     SectionName          As String * 8
@@ -238,80 +214,121 @@ Public IMAGE_BASE_RELOCATION As IMAGE_BASE_RELOCATION
 Public IMAGE_IMPORT_BY_NAME As IMAGE_IMPORT_BY_NAME
 
 
-'Public Enum ResTypes
-'   Icon ' As Integer
-'End Enum
-'
-'Public Type ResourceEntry
-'     ResType As Long            '0x00000003  (ICON)
-'     OffsetToData As Long       '0x80000048  (DATA_IS_DIRECTORY)
-'End Type
-'
-'Public Type ResDirectory
-'   Characteristics As Long
-'   TimeDateStamp As Long            '0x486140F5  (Tue Jun 24 18:46:13 2008)
-'   MajorVersion As Integer          '0x0053
-'   MinorVersion As Integer          '0x0002  -> 83.02
-'   NumberOfNamedEntries As Integer  '0x0000
-'   NumberOfIdEntries As Integer     '0x0003
-'   ResourceEntry As ResourceEntry
-'End Type
-'
-'
-'Public Type ResourceDataEntry
-'   OffsetToData_RVA As Long
-'   Size As Long
-'   CodePage As Long
-'   Reserved As Long
-'End Type
-'
-'
-'Public Type ICONDIRENTRY
-'   bWidth As Byte
-'   bHeight As Byte
-'   bColorCount As Byte
-'   bReserved As Byte
-'
-'   wPlanes As Integer
-'   wBitCount As Integer
-'   dwBytesInRes As Long
-'   dwImageOffset As Long
-'End Type
-'
-'
-'Public Type ICONDIR
-'   idReserved As Integer   '// Reserved (must be 0)
-'   idType As Integer       '// Resource Type (1 for icons)
-'   idCount As Integer      '// How many images?
-'   idEntry As ICONDIRENTRY '// An entry for each image (idCount of 'em)
-'End Type
-'
-'
-'
-'
-'
-
-
-
-
-
-
-
 'assumption the .text Sections ist the first and .data Section the second in pe_header
 Public Const TEXT_SECTION& = 0
 Public Const DATA_SECTION& = 1
 
-Public PE_info As New PE_info
+'Public PE_info As New PE_info
 Public PE_Header As PE_Header
 Public PE_Header64 As PE_Header64
 
 Public IsPE64 As Boolean
-
-'Public file As New FileStream
-Public file_readonly As New FileStream
-'Public FileName As New ClsFilename
 Public PE_SectionData As Collection
+Private PEStart&
 
+'these functions were in a class, but they are used to set these public structs so keeping all in one place...
+
+Public Function VAToRaw(VA As Long) As Long
+   Dim i&, RVA&
+   RVA = VA - PE_Header.ImageBase
+   
+   VAToRaw = -1
+   
+  'find section
+   For i = 0 To PE_Header.NumberofSections - 1
+      
+      With PE_Header.Sections(i)
+         If RangeCheck(RVA, .RVAOffset + .VirtualSize, .RVAOffset) Then
+            VAToRaw = .PointertoRawData + (RVA - .RVAOffset)
+            Exit For
+         End If
+      End With
+   
+   Next
+
+End Function
+
+Public Function RVAToRaw(RVA As Long) As Long
+   Dim i&
+  
+   RVAToRaw = -1
+   
+  'find section
+   For i = PE_Header.NumberofSections - 1 To 0 Step -1
+      
+      With PE_Header.Sections(i)
+         If RangeCheck(RVA, .RVAOffset + .VirtualSize, .RVAOffset) Then
+            RVAToRaw = .PointertoRawData + (RVA - .RVAOffset)
+            Exit For
+         End If
+      End With
+   
+   Next
+
+End Function
+
+Public Sub OpenPE()
+
+'     '--- find PE-signature ---
+'     'Get First 0x400 Bytes
+'      Dim tmpstr$
+'      file.Position = 0
+'      tmpstr = file.FixedString(&H400)
+'
+'     'Locate start of PE-header
+'      PEStart = InStr(1, tmpstr, "PE" & vbNullChar & vbNullChar, vbBinaryCompare)
+'      If PEStart = 0 Then err.Raise vbObjectError Or 1, , "No PE-Header Found"
+    
+     '--- find PE-signature ---
+     'Check DOS Header
+      Dim tmpstr$
+      File.Position = 0
+     
+     'to skip the Error in VB-IDE Rightclick Toggle/Break on unhandled errors
+     'MZ DOS-Header->e_magic
+      If File.int16 <> &H5A4D Then Err.Raise vbObjectError Or 1, , "No ExeFile DOS-Header.e_magic<>""MZ"""
+
+     'Locate & Validate PE-header
+      File.Position = &H3C '   DOS-Header->e_lfanew
+      PEStart = File.int32
+      File.Position = PEStart
+      PEStart = PEStart + 1
+      
+      If File.int32 <> &H4550 Then Err.Raise vbObjectError Or 2, , "No ExeFile 'PE-Header.Signature<>""PE"""
+    
+    '  --- get PE_Header  ---
+      Dim hFile&
+      hFile = m_FreeFile("peheader")
+      Open File.filename For Binary Access Read As #hFile
+      Get hFile, PEStart, PE_Header
+      m_Close hFile, "peheader"
+      
+      
+    ' Validate Machine Type
+      If PE_Header.Machine <> &H14C Then
+         If PE_Header.Machine = &H8664 Then
+'            Err.Raise vbObjectError Or 4, , "PE-Header.Signature=HDR64_MAGIC!"
+            IsPE64 = True
+            
+            '  --- get PE_Header64  ---
+            hFile = m_FreeFile("machinetype")
+            Open File.filename For Binary Access Read As #hFile
+            Get hFile, PEStart, PE_Header64
+            m_Close hFile, "machinetype"
+  
+         Else
+           Err.Raise vbObjectError Or 3, , "Unsupported PE-Header.Signature 0x" & H16(PE_Header.Machine) & " <>I386(0x14C)."
+         End If
+      
+      Else
+         If PE_Header.OptionalHeaderSize <> &HE0 Then
+            Err.Raise vbObjectError Or 5, , "PE_Header.OptionalHeaderSize = E0 expected but curvalue is " & H32(PE_Header.OptionalHeaderSize)
+         
+         End If
+   
+      End If
+    
+End Sub
 
 
 Function AlignForFile(value&)

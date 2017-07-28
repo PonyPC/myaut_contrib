@@ -23,15 +23,17 @@ Dim Level&
 
 Public Sub SeperateIncludes()
    
+   On Error Resume Next
+   
    FrmMain.Log ""
    FrmMain.Log "==============================================================="
-   FrmMain.Log "Seperating Includes of : " & FileName.FileName
+   FrmMain.Log "Seperating Includes of : " & filename.filename
    
    
   'Read *.au3 into ScriptData
    Dim ScriptData$
    With File
-      .Create FileName.FileName
+      .Create filename.filename
       
       
       'Test for Unicode-Bom
@@ -63,7 +65,7 @@ Public Sub SeperateIncludes()
   
  ' Make DirName with scriptname
    With IncludeFileName
-      .mvarFileName = FileName.mvarFileName
+      .mvarFileName = filename.mvarFileName
       .Name = "_" & .Name & "_Seperated\"
       .NameWithExt = ""
    End With
@@ -131,21 +133,21 @@ Private Sub SeperateIncludes_Recursiv(ByVal EndSym$)
        'CopyName last two path parts
        ' Example: "D:\Program Files\AutoIt3\Include\" ->  "AutoIt3\Include\"
          Dim PathParts, PathPartsCount
-         PathParts = Split(IncludePath.Path, "\")
+         PathParts = Split(IncludePath.path, "\")
          PathPartsCount = UBound(PathParts)
          If PathPartsCount > 2 Then
-            IncludePathNew.Path = PathParts(PathPartsCount - 2) & "\" & _
+            IncludePathNew.path = PathParts(PathPartsCount - 2) & "\" & _
                                PathParts(PathPartsCount - 1) & "\"
          ElseIf PathPartsCount > 1 Then
-            IncludePathNew.Path = PathParts(PathPartsCount - 1) & "\"
+            IncludePathNew.path = PathParts(PathPartsCount - 1) & "\"
             
          Else
-            IncludePathNew.Path = "Inc\"
+            IncludePathNew.path = "Inc\"
             
          End If
          
         'First Include is the MainScript - Place it in the ScriptDir
-         If IncludeListCount = 0 Then IncludePathNew.Path = ""
+         If IncludeListCount = 0 Then IncludePathNew.path = ""
          
                                
                               
@@ -156,10 +158,10 @@ Private Sub SeperateIncludes_Recursiv(ByVal EndSym$)
                                
        ' Make includepath for insert "#include <...>" l
          Dim IncludeLinePath$
-         IncludeLinePath = IIf(IncludePathNew.Path Like "AutoIt3\Include\", "", IncludePathNew.Path) & IncludePathNew.NameWithExt
+         IncludeLinePath = IIf(IncludePathNew.path Like "AutoIt3\Include\", "", IncludePathNew.path) & IncludePathNew.NameWithExt
          
         'Add Script path   Example: "AutoIt3\Include\"-> "f:\myscripts\AutoIt3\Include\"
-         IncludePathNew.Path = IncludeFileName.Path & IncludePathNew.Path
+         IncludePathNew.path = IncludeFileName.path & IncludePathNew.path
          IncludePathNew.MakePath
           
           
@@ -202,7 +204,7 @@ Private Sub SeperateIncludes_Recursiv(ByVal EndSym$)
          
         'Filter out duplicates
          On Error Resume Next
-         IncludeList.Add IncludePathNew.FileName, IncludePathNew.FileName
+         IncludeList.Add IncludePathNew.filename, IncludePathNew.filename
          If (Err = 0) Then
 '        If Len(ScriptData) > (6 + INCLUDE_FirstLine_Len) Then
           
@@ -216,7 +218,7 @@ Private Sub SeperateIncludes_Recursiv(ByVal EndSym$)
             FrmMain.Txt_Script = ScriptData
           
           ' Save ScriptData to file
-            FileSave IncludePathNew.FileName, ScriptData
+            fso.writeFile IncludePathNew.filename, ScriptData
 
            
          Else
@@ -402,13 +404,13 @@ Public Sub AHK_SeperateIncludes(ByRef ScriptData As StringReader, OutputPath$)
           ' Make IncludeFileName
             Dim IncludeFileName As New ClsFilename
             With IncludeFileName
-               .FileName = OutputPath
+               .filename = OutputPath
                .NameWithExt = Replace(Match.SubMatches(1), "/", "\") '<-slash to backslash
                .MakePath
             End With
             
           ' Save include data
-            FileSave IncludeFileName.FileName, _
+            fso.writeFile IncludeFileName.filename, _
                      IncludeFile.value
           
           ' Clear tmpstorage for Include
@@ -481,7 +483,7 @@ Public Sub AHK_SeperateIncludes(ByRef ScriptData As StringReader, OutputPath$)
 '         End With
 '
 '       ' Get IncludeData
-'         Match.SubMatches(1) = FileLoad(IncludeFileName.FileName)
+'         Match.SubMatches(1) = fso.ReadFile(IncludeFileName.FileName)
 '
 '      Next
 '

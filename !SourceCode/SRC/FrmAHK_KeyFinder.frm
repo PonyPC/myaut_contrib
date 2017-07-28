@@ -1,6 +1,6 @@
 VERSION 5.00
 Begin VB.Form FrmAHK_KeyFinder 
-   BorderStyle     =   4  'Festes Werkzeugfenster
+   BorderStyle     =   4  'Fixed ToolWindow
    Caption         =   "AHK Keyfinder"
    ClientHeight    =   1500
    ClientLeft      =   6300
@@ -12,6 +12,7 @@ Begin VB.Form FrmAHK_KeyFinder
    ScaleHeight     =   1500
    ScaleWidth      =   1935
    ShowInTaskbar   =   0   'False
+   StartUpPosition =   2  'CenterScreen
    Begin VB.CommandButton cmd_cancel 
       Cancel          =   -1  'True
       Caption         =   "Cancel"
@@ -40,7 +41,7 @@ Begin VB.Form FrmAHK_KeyFinder
       Width           =   735
    End
    Begin VB.Label Label1 
-      Alignment       =   2  'Zentriert
+      Alignment       =   2  'Center
       BackStyle       =   0  'Transparent
       Caption         =   "Use Mousewheel or the up and down keys to scroll. Double click to restore inital key."
       Height          =   855
@@ -55,6 +56,8 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
+'used in decompiler Decompile_HandleAHK_ExtraDecryption on demand if necessary
+
 Option Explicit
 Dim ScriptDataEncryptedPreviewBuff As StringReader
 Dim AHK_Key_initial As Byte

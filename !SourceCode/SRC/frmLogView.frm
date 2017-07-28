@@ -17,7 +17,7 @@ Begin VB.Form frmLogView
    LinkTopic       =   "Form1"
    ScaleHeight     =   7845
    ScaleWidth      =   11670
-   StartUpPosition =   3  'Windows Default
+   StartUpPosition =   2  'CenterScreen
    Begin VB.TextBox txtlog 
       BeginProperty Font 
          Name            =   "Courier New"
@@ -52,6 +52,8 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = False
+'used if dbl click log list box on main form
+
 Option Explicit
 
 Private Sub cmd_Quit_Click()

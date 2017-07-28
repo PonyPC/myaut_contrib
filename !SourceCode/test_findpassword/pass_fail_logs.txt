@@ -1,0 +1,133 @@
+Handling Sample: C:\Documents and Settings\david\Desktop\AutoIT_SAMPLES\eb404ee7aad980678c676f1bcd5beaf9_files\eb404ee7aad980678c676f1bcd5beaf9
+>>> USED PASSWORD SCAN
+>>> USED PASSWORD SCAN
+>>> USED PASSWORD SCAN
+>>> USED PASSWORD SCAN
+>>> USED PASSWORD SCAN
+>>> USED PASSWORD SCAN
+           FAILED Time: 5.156 seconds Offsets: 0
+
+Handling Sample: C:\Documents and Settings\david\Desktop\AutoIT_SAMPLES\f6d516b944ea4213701d5d4c1f120392_files\f6d516b944ea4213701d5d4c1f120392
+>>> USED PASSWORD SCAN
+>>> USED PASSWORD SCAN
+>>> USED PASSWORD SCAN
+>>> USED PASSWORD SCAN
+>>> USED PASSWORD SCAN
+     SUCCESS Time: 4.234 seconds Offsets: 2
+
+Handling Sample: C:\Documents and Settings\david\Desktop\AutoIT_SAMPLES\6896674e25d8942e7598061c0b5a9a23_files\6896674e25d8942e7598061c0b5a9a23
+>>> USED PASSWORD SCAN
+>>> USED PASSWORD SCAN
+>>> USED PASSWORD SCAN
+     SUCCESS Time: 6.422 seconds Offsets: 1
+
+Handling Sample: C:\Documents and Settings\david\Desktop\AutoIT_SAMPLES\63946b9715c96d6c989a367b2fc8d9c2_files\63946b9715c96d6c989a367b2fc8d9c2
+>>> USED PASSWORD SCAN
+>>> USED PASSWORD SCAN
+>>> USED PASSWORD SCAN
+>>> USED PASSWORD SCAN
+>>> USED PASSWORD SCAN
+     SUCCESS Time: 3.469 seconds Offsets: 1
+
+Handling Sample: C:\Documents and Settings\david\Desktop\AutoIT_SAMPLES\4172b5c0a5aa7e2bc2f706870ae96342_files\4172b5c0a5aa7e2bc2f706870ae96342
+>>> USED PASSWORD SCAN
+>>> USED PASSWORD SCAN
+     SUCCESS Time: 18.156 seconds Offsets: 1
+
+Handling Sample: C:\Documents and Settings\david\Desktop\AutoIT_SAMPLES\d3f2dc9b66ab1cbcb23f0c2b188c91df_files\d3f2dc9b66ab1cbcb23f0c2b188c91df
+>>> USED PASSWORD SCAN
+>>> USED PASSWORD SCAN
+>>> USED PASSWORD SCAN
+>>> USED PASSWORD SCAN
+>>> USED PASSWORD SCAN
+>>> USED PASSWORD SCAN
+>>> USED PASSWORD SCAN
+>>> USED PASSWORD SCAN
+>>> USED PASSWORD SCAN
+>>> USED PASSWORD SCAN
+>>> USED PASSWORD SCAN
+           FAILED Time: 10.734 seconds Offsets: 0
+
+Handling Sample: C:\Documents and Settings\david\Desktop\AutoIT_SAMPLES\846bb42214d60d101cd04175cba120c6_files\846bb42214d60d101cd04175cba120c6
+>>> USED PASSWORD SCAN
+>>> USED PASSWORD SCAN
+           FAILED Time: 2.641 seconds Offsets: 0
+
+Handling Sample: C:\Documents and Settings\david\Desktop\AutoIT_SAMPLES\e4119c2410ffc063dd293c7c5fd422d3_files\e4119c2410ffc063dd293c7c5fd422d3
+>>> USED PASSWORD SCAN
+>>> USED PASSWORD SCAN
+           FAILED Time: 2.031 seconds Offsets: 0
+
+Handling Sample: C:\Documents and Settings\david\Desktop\AutoIT_SAMPLES\12831f7520899e892e8b27499b94e1c7_files\12831f7520899e892e8b27499b94e1c7
+>>> USED PASSWORD SCAN
+>>> USED PASSWORD SCAN
+>>> USED PASSWORD SCAN
+>>> USED PASSWORD SCAN
+           FAILED Time: 3.453 seconds Offsets: 0
+
+Handling Sample: C:\Documents and Settings\david\Desktop\AutoIT_SAMPLES\18e989e6e40ce764bc590f3e4244d539_files\18e989e6e40ce764bc590f3e4244d539
+>>> USED PASSWORD SCAN
+>>> USED PASSWORD SCAN
+>>> USED PASSWORD SCAN
+>>> USED PASSWORD SCAN
+>>> USED PASSWORD SCAN
+     SUCCESS Time: 4.578 seconds Offsets: 1
+
+Handling Sample: C:\Documents and Settings\david\Desktop\AutoIT_SAMPLES\0b0b1036ef24173568f53e81b7381527_files\0b0b1036ef24173568f53e81b7381527
+>>> USED PASSWORD SCAN
+>>> USED PASSWORD SCAN
+>>> USED PASSWORD SCAN
+>>> USED PASSWORD SCAN
+>>> USED PASSWORD SCAN
+     SUCCESS Time: 3.953 seconds Offsets: 2
+
+Handling Sample: C:\Documents and Settings\david\Desktop\AutoIT_SAMPLES\4b3438aad38c953747e948bb5db7936b_files\4b3438aad38c953747e948bb5db7936b
+>>> USED PASSWORD SCAN
+>>> USED PASSWORD SCAN
+           FAILED Time: 4.625 seconds Offsets: 0
+
+Handling Sample: C:\Documents and Settings\david\Desktop\AutoIT_SAMPLES\d60f1dd6ed48ab793971885d17a32a52_files\d60f1dd6ed48ab793971885d17a32a52
+>>> USED PASSWORD SCAN
+>>> USED PASSWORD SCAN
+           FAILED Time: 4859.703 seconds Offsets: 0
+
+Handling Sample: C:\Documents and Settings\david\Desktop\AutoIT_SAMPLES\8b6757461a26e8dd38e07fea3dad917e_files\8b6757461a26e8dd38e07fea3dad917e
+>>> USED PASSWORD SCAN
+>>> USED PASSWORD SCAN
+           FAILED Time: 1.859 seconds Offsets: 0
+
+Handling Sample: C:\Documents and Settings\david\Desktop\AutoIT_SAMPLES\3a27e9f6d61a69be4b329baa40036141_files\3a27e9f6d61a69be4b329baa40036141
+>>> USED PASSWORD SCAN
+>>> USED PASSWORD SCAN
+>>> USED PASSWORD SCAN
+     SUCCESS Time: 17.921 seconds Offsets: 1
+
+Handling Sample: C:\Documents and Settings\david\Desktop\AutoIT_SAMPLES\c1c5a61d9f30dc9a5f1a7e1d88506a9d_files\c1c5a61d9f30dc9a5f1a7e1d88506a9d
+>>> USED PASSWORD SCAN
+>>> USED PASSWORD SCAN
+           FAILED Time: 2.719 seconds Offsets: 0
+
+Handling Sample: C:\Documents and Settings\david\Desktop\AutoIT_SAMPLES\50266a0962c466dad53958bb0a982a5f_files\50266a0962c466dad53958bb0a982a5f
+>>> USED PASSWORD SCAN
+>>> USED PASSWORD SCAN
+           FAILED Time: 7.094 seconds Offsets: 0
+
+Handling Sample: C:\Documents and Settings\david\Desktop\AutoIT_SAMPLES\a4a3b8f971fdc03f39985538181f8e1c_files\a4a3b8f971fdc03f39985538181f8e1c
+>>> USED PASSWORD SCAN
+>>> USED PASSWORD SCAN
+>>> USED PASSWORD SCAN
+>>> USED PASSWORD SCAN
+           FAILED Time: 7.078 seconds Offsets: 0
+
+Handling Sample: C:\Documents and Settings\david\Desktop\AutoIT_SAMPLES\cc41e60e15b82a6d1b1d713f6649aeca_files\cc41e60e15b82a6d1b1d713f6649aeca
+>>> USED PASSWORD SCAN
+>>> USED PASSWORD SCAN
+>>> USED PASSWORD SCAN
+>>> USED PASSWORD SCAN
+>>> USED PASSWORD SCAN
+     SUCCESS Time: 5.25 seconds Offsets: 1
+
+Handling Sample: C:\Documents and Settings\david\Desktop\AutoIT_SAMPLES\bde4694b82df31150914e3dd9f7a7b17_files\bde4694b82df31150914e3dd9f7a7b17
+>>> USED PASSWORD SCAN
+>>> USED PASSWORD SCAN
+           FAILED Time: 6.172 seconds Offsets: 0

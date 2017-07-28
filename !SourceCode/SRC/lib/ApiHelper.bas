@@ -86,13 +86,13 @@ Private Declare Function SendMessage Lib "user32" Alias "SendMessageA" (ByVal _
 
 
 
-Sub Listbox_SetHorizontalExtent(lb As Listbox, ByVal newWidth As Long)
+Sub Listbox_SetHorizontalExtent(lb As ListBox, ByVal newWidth As Long)
     SendMessage lb.hwnd, LB_SETHORIZONTALEXTENT, newWidth, ByVal 0&
 End Sub
 
 
 ' Return the horizontal extent of the control (in pixel).
-Function Listbox_GetHorizontalExtent(lb As Listbox) As Long
+Function Listbox_GetHorizontalExtent(lb As ListBox) As Long
     Listbox_GetHorizontalExtent = SendMessage(lb.hwnd, LB_GETHORIZONTALEXTENT, 0, ByVal 0&)
 End Function
 
@@ -193,14 +193,10 @@ Public Function FileRename(SourceFileName$, destinationFileName$) As Boolean
 End Function
 
 Public Sub FileDelete(SourceFileName$)
-   
    On Error Resume Next
-   log_verbose "Deleting: " & SourceFileName
-   
+   Log "Deleting: " & SourceFileName
    Kill SourceFileName
-   
    If Err Then log_verbose "=> FAILED - " & Err.Description
-  
 End Sub
 
 Private Sub createBackup()
@@ -214,8 +210,8 @@ Private Sub createBackup()
       FileBak = .Name & ".vEx"
       
      'Set Workingdir
-      ChDrive .Path
-      ChDir .Path
+      ChDrive .path
+      ChDir .path
       
  '    'Delete .bak
 '      FileDelete FileBak

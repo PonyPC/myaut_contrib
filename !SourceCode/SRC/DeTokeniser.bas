@@ -9,7 +9,7 @@ Const whiteSpaceTerminal$ = " "
 Const ExcludePreWhiteSpaceTerminal$ = "(["
 Const ExcludePostWhiteSpaceTerminal$ = ")]."
 
-Const TokenFile_RequiredInputExtensions = ".tok .mem"
+Public Const TokenFile_RequiredInputExtensions = ".tok .mem"
 
 Dim bAddWhiteSpace As Boolean
 
@@ -19,11 +19,11 @@ Sub DeToken()
    Dim bVerbose As Boolean
    
    bVerbose = FrmMain.Chk_verbose.value = vbGrayed
-   With File
+   With FILE
     
-      Log "DeTokenising: " & FileName.FileName
+      Log "DeTokenising: " & filename.filename
       
-      If InStr(TokenFile_RequiredInputExtensions, FileName.Ext) = 0 Then
+      If InStr(TokenFile_RequiredInputExtensions, filename.ext) = 0 Then
          Err.Raise NO_AUT_DE_TOKEN_FILE, , "STOPPED!!! Required FileExtension for Tokenfiles: '" & TokenFile_RequiredInputExtensions & "'" & vbCrLf & _
          "Rename this file manually to show that this should be detokenied."
       End If
@@ -41,15 +41,15 @@ Sub DeToken()
       DecimalKomma = Split(Int64_TestValue, "1234")(1)
       
       
-      .Create FileName.FileName, False, False, True
-      If .Length < 4 Then
+      .Create filename.filename, False, False, True
+      If .length < 4 Then
          Err.Raise NO_AUT_DE_TOKEN_FILE, , "STOPPED!!! File must be at least 4 bytes"
       End If
 '   .CloseFile
 '   End With
    
 '   With New StringReader
-'      .Data = FileLoad(FileName.FileName)
+'      .Data = fso.ReadFile(FileName.FileName)
    
       
    On Error GoTo DeToken_Err
@@ -72,9 +72,9 @@ Sub DeToken()
       
             
       
-      FrmMain.List_Source.Clear
-      FrmMain.List_Source.Visible = True
-      
+'      FrmMain.List_Source.Clear
+'      FrmMain.List_Source.Visible = True
+'
     ' ProgressBarInit
       GUIEvent_ProcessBegin Lines
    
@@ -88,7 +88,7 @@ Sub DeToken()
       
       
       Dim cmd&
-      Dim Size&
+      Dim size&
 
       Dim SourceCode ' As New Collection
       Dim SourceCodeLineCount&
@@ -166,7 +166,8 @@ Sub DeToken()
             FL_verbose TypeName & ": 0x" & H32(int32) & "   " & int32
             
           ' So far this value has always been 5
-            Debug.Assert cmd = 5
+          '  Debug.Assert cmd = 5
+          If cmd <> 5 Then Log "Debug.Assert cmd <> 5 " & cmd
          
          Case &H10 To &H1F
             Dim Int64 As Currency
@@ -178,8 +179,9 @@ Sub DeToken()
             TypeName = "Int64"
             FL_verbose TypeName & ": " & Int64
             
-            Debug.Assert cmd = &H10
-         
+           ' Debug.Assert cmd = &H10
+           If cmd <> &H10 Then Log "Debug.Assert cmd <> &H10 " & cmd
+           
          Case &H20 To &H2F
            'Get DoubleValue
             Dim Double_$
@@ -190,27 +192,27 @@ Sub DeToken()
             TypeName = "64Bit-float"
             FL_verbose TypeName & ": " & Double_
          
-            Debug.Assert cmd = &H20
-         
+            'Debug.Assert cmd = &H20
+            If cmd <> &H20 Then Log "Debug.Assert cmd <> &H20 " & cmd
 
 '------- Strings -----------
          Case &H30 To &H3F 'Keywords
             
            'Get StrLength and load it
-            Size = .int32
-            FL_verbose "StringSize: " & H32(Size)
+            size = .int32
+            FL_verbose "StringSize: " & H32(size)
             
-            If Size > (.Length - .Position) Then
+            If size > (.length - .Position) Then
                Err.Raise vbObjectError, , "Invalid string size(bigger than the file)!"
             End If
 
-            RawString = .FixedStringW(Size)
+            RawString = .FixedStringW(size)
            
            'XorDecode String
             Dim pos&, XorKey_l As Byte, XorKey_h As Byte
             
-            XorKey_l = (Size And &HFF)
-            XorKey_h = ((Size \ &H100) And &HFF) ' 2^8 = 256
+            XorKey_l = (size And &HFF)
+            XorKey_h = ((size \ &H100) And &HFF) ' 2^8 = 256
             
             Dim tmpBuff() As Byte
             tmpBuff = RawString
@@ -300,13 +302,16 @@ Sub DeToken()
             
             
             Case Else
+               
+               Log "ERROR: Unknown StringToken " & Hex(cmd) & " @ " & H32(TokenOffset)
+               
                'Unknown StringToken
-               If HandleTokenErr("ERROR: Unknown StringToken") Then
-               Else
-                  Err.Raise vbObjectError Or 1, , "Unknown StringToken"
-                  Stop
-
-               End If
+               'If HandleTokenErr("ERROR: Unknown StringToken") Then
+               'Else
+               '   Err.Raise vbObjectError Or 1, , "Unknown StringToken"
+               '   Stop'
+               '
+               'End If
                
                
             End Select
@@ -390,11 +395,11 @@ Sub DeToken()
             
            'Unknown Token
             Log "Unknown Token_Command: 0x" & H8(cmd) & " @ " & H32(TokenOffset)
-            If HandleTokenErr("ERROR: Unknown Token") Then
-            Else
-               Err.Raise NO_AUT_DE_TOKEN_FILE, , "Unknown Token"
+            'If HandleTokenErr("ERROR: Unknown Token") Then
+            'Else
+            '   Err.Raise NO_AUT_DE_TOKEN_FILE, , "Unknown Token"
                'Exit Do
-            End If
+            'End If
            'qw
 '           Stop
            
@@ -414,7 +419,7 @@ Sub DeToken()
                (bAddWhiteSpace And Not (bWasLastAnOperator)) Then
              
              ' Add with whitespace
-               ArrayAdd SourceCodeLine, Atom
+               push SourceCodeLine, Atom
                If bVerbose Then Frm_SrcEdit.AddItem whiteSpaceTerminal & Atom, cmd, TypeName, TokenInfo & " @ 0x" & H32(TokenOffset)
             Else
               'Append to Last
@@ -448,15 +453,15 @@ Select Case Err
      Dim ErrSourceCodeLine$
      ErrSourceCodeLine = Join(SourceCodeLine, whiteSpaceTerminal)
      
-     Dim ErrText$
-     ErrText = "ERROR: " & Err.Description & vbCrLf & _
+     Dim errText$
+     errText = "ERROR: " & Err.Description & vbCrLf & _
       "FileOffset: " & H32(.Position) & vbCrLf & _
       " when de-tokenising script line: " & SourceCodeLineCount & vbCrLf & ErrSourceCodeLine
-     Log ErrText
-     MsgBox ErrText, vbCritical, "Unexpected Error during detokenising"
+     Log errText
+     'MsgBox ErrText, vbCritical, "Unexpected Error during detokenising"
      
     'Set incomplete SourceCodeLine
-     SourceCode(SourceCodeLineCount) = ErrSourceCodeLine & " <- " & ErrText
+     SourceCode(SourceCodeLineCount) = ErrSourceCodeLine & " <- " & errText
      Inc SourceCodeLineCount
 
     'Cut down SourceCodeArray to Error
@@ -465,21 +470,21 @@ Select Case Err
      Resume DeToken_Finally
 End Select
 
-  
-  If FrmMain.Chk_TmpFile = vbUnchecked Then
-     Log "Keep TmpFile is unchecked => Deleting '" & FileName.NameWithExt & "'"
-     FileDelete (FileName)
-  End If
+  'if we were starting with a tok file this was deleting it...lets just always keep it..
+'  If FrmMain.Chk_TmpFile = vbUnchecked Then
+'     Log "Keep TmpFile is unchecked => Deleting '" & FileName.NameWithExt & "'"
+'     FileDelete (FileName)
+'  End If
 
 
 DeToken_Finally:
-   File.CloseFile
+   FILE.CloseFile
   End With
     
 ' ProgressBar Finish
   GUIEvent_ProcessEnd
   
-  FileName.Ext = ".au3"
+  filename.ext = ".au3"
   
   
 '   If bUnicodeEnable Then
@@ -501,45 +506,48 @@ DeToken_Finally:
 '
 '   End If
   
+  
+  'it might not make it down here is an error is thrown...no exit subs are included...
   FrmMain.Log "Converting Unicode to UTF8, since Tidy don't support unicode."
   SaveScriptData UTF8_BOM & EncodeUTF8(ScriptData), True
    
   Log "Token expansion succeed."
    
-  FrmMain.List_Source.Visible = False
+  'FrmMain.List_Source.Visible = False
 
 End Sub
 
-Private Function HandleTokenErr(ErrText$) As Boolean
-
-   With File
-   
-      If vbYes = MsgBox("An Token error occured - possible due to corrupted scriptdata. Contiune?", vbCritical + vbYesNo, ErrText) Then
-         HandleTokenErr = True
-         
-'         Dim Hexdata As New clsStrCat, HexdataLine&
-'         Hexdata.Clear
-'         For HexdataLine = 0 To &H100 Step &H8
-'            Dim Data As New StringReader
-'            Data = .FixedString(&H8)
-'            Hexdata.Concat H16(HexdataLine) & ":  " & ValuesToHexString(Data) & vbCrLf
+'Private Function HandleTokenErr(ErrText$) As Boolean
+''
+'   With File
 '
-'         Next
-'         .Move -&H100
-'         Stop
-'         .Move InputBox("The this is the following raw Token data: " & Hexdata.value & "How many bytes should I skip?", "Skip Tokenbytes", "0")
-         
-      Else
-         HandleTokenErr = False
-      
-      End If
-      
-   End With
-End Function
+'      If vbYes = MsgBox("An Token error occured - possible due to corrupted scriptdata. Contiune?", vbCritical + vbYesNo, ErrText) Then
+'         HandleTokenErr = True
+'
+''         Dim Hexdata As New clsStrCat, HexdataLine&
+''         Hexdata.Clear
+''         For HexdataLine = 0 To &H100 Step &H8
+''            Dim Data As New StringReader
+''            Data = .FixedString(&H8)
+''            Hexdata.Concat H16(HexdataLine) & ":  " & ValuesToHexString(Data) & vbCrLf
+''
+''         Next
+''         .Move -&H100
+''         Stop
+''         .Move InputBox("The this is the following raw Token data: " & Hexdata.value & "How many bytes should I skip?", "Skip Tokenbytes", "0")
+'
+'      Else
+'         HandleTokenErr = False
+'
+'      End If
+'
+'   End With
+'End Function
 
 Private Sub LogSourceCodeLine(TextLine$)
-   FrmMain.LogSourceCodeLine TextLine$
+   'FrmMain.LogSourceCodeLine TextLine$
 End Sub
+
 'Handle UserString with Quotes...
 Function MakeAutoItString$(RawString$)
              
@@ -651,9 +659,4 @@ Private Sub Log(TextLine$)
    FrmMain.Log TextLine$
 End Sub
 
-'/////////////////////////////////////////////////////////
-'// log_clear - Clears all log entries
-Private Sub Log_Clear()
-   FrmMain.Log_Clear
-End Sub
 

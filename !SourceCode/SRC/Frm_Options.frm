@@ -2,23 +2,23 @@ VERSION 5.00
 Begin VB.Form Frm_Options 
    BorderStyle     =   4  'Fixed ToolWindow
    Caption         =   "Options"
-   ClientHeight    =   7020
+   ClientHeight    =   7215
    ClientLeft      =   45
    ClientTop       =   285
    ClientWidth     =   8400
    LinkTopic       =   "Options"
    MaxButton       =   0   'False
    MinButton       =   0   'False
-   ScaleHeight     =   7020
+   ScaleHeight     =   7215
    ScaleWidth      =   8400
    ShowInTaskbar   =   0   'False
-   StartUpPosition =   3  'Windows Default
+   StartUpPosition =   2  'CenterScreen
    Begin VB.Frame Frame3 
       Caption         =   "Get XorKey's"
       Height          =   855
-      Left            =   120
+      Left            =   135
       TabIndex        =   54
-      Top             =   6120
+      Top             =   6300
       Width           =   8175
       Begin VB.TextBox Txt_GetCamoFileName 
          Alignment       =   1  'Right Justify
@@ -651,9 +651,9 @@ End Sub
 
 Private Sub cmd_CamoGet_Click()
    On Error GoTo cmd_CamoGet_Click_err
-   
+
    CamoGet
-   
+
    Exit Sub
 cmd_CamoGet_Click_err:
    Log "ERROR: [CamoGet] " & Err.Description
@@ -706,7 +706,7 @@ End Sub
 
 
 Private Sub Form_Activate()
-   Txt_GetCamoFileName = FrmMain.Combo_Filename
+   Txt_GetCamoFileName = FrmMain.txtFilePath
 End Sub
 
 Private Sub Form_Load()
